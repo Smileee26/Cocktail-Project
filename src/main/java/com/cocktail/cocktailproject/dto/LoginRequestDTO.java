@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * LoginRequestDTO - Dati per la richiesta di login
+ * LoginRequestDTO - Data for a login request
  * 
- * Utilizzato nell'endpoint POST /api/auth/login
- * Username e password sono obbligatori
+ * Used by the POST /api/auth/login endpoint
+ * Username and password are required
  */
 @Data
 @NoArgsConstructor

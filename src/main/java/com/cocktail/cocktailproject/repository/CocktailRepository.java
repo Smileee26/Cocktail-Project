@@ -9,33 +9,33 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * CocktailRepository - Accesso ai dati della tabella cocktail
+ * CocktailRepository - Data access for the cocktail table
  * 
- * Operazioni automatiche (da JpaRepository):
- * - findAll(): ottieni tutti i cocktail
- * - findById(id): ottieni cocktail per ID
- * - save(cocktail): crea o aggiorna un cocktail
- * - deleteById(id): elimina un cocktail
- * - existsById(id): verifica esistenza
+ * Automatic operations (from JpaRepository):
+ * - findAll(): get all cocktails
+ * - findById(id): get a cocktail by ID
+ * - save(cocktail): create or update a cocktail
+ * - deleteById(id): delete a cocktail
+ * - existsById(id): check existence
  * 
- * Query custom:
- * - Ricerca per nome con supporto paginazione
+ * Custom queries:
+ * - Search by name with pagination support
  */
 @Repository
 public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
     
     /**
-     * Cerca cocktail per nome (case-insensitive, ricerca parziale) - senza paginazione
-     * @param nome Stringa da cercare (es: "marg" trova "Margarita")
-     * @return Lista di tutti i cocktail che contengono la stringa nel nome
+     * Searches cocktails by name (case-insensitive, partial search) - without pagination.
+     * @param nome string to search for (e.g. "marg" finds "Margarita")
+     * @return list of all cocktails containing the string in their name
      */
     List<Cocktail> findByNomeContainingIgnoreCase(String nome);
     
     /**
-     * Cerca cocktail per nome con paginazione (metodo raccomandato)
-     * @param nome Stringa da cercare (case-insensitive, ricerca parziale)
-     * @param pageable Parametri di paginazione (page, size, sort)
-     * @return Pagina di risultati
+     * Searches cocktails by name with pagination (recommended method).
+     * @param nome string to search for (case-insensitive, partial search)
+     * @param pageable pagination parameters (page, size, sort)
+     * @return page of results
      */
     Page<Cocktail> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }

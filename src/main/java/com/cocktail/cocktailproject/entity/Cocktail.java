@@ -6,21 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity Cocktail - Rappresenta un cocktail nel database
+ * Cocktail entity - Represents a cocktail in the database
  * 
- * Tabella: cocktail
+ * Table: cocktail
  * 
- * Campi:
- * - id: Chiave primaria auto-incrementale
- * - nome: Nome del cocktail (max 150 caratteri, obbligatorio)
- * - descrizione: Descrizione dettagliata (TEXT, opzionale)
- * - tempoPreparazioneMinutes: Tempo di preparazione in minuti (opzionale)
- * - note: Note aggiuntive (TEXT, opzionale)
+ * Fields:
+ * - id: Auto-incrementing primary key
+ * - nome: Cocktail name (max 150 characters, required)
+ * - descrizione: Detailed description (TEXT, optional)
+ * - tempoPreparazioneMinutes: Preparation time in minutes (optional)
+ * - note: Additional notes (TEXT, optional)
  * 
- * Relazioni:
- * - 1:N con Preparazione (un cocktail ha molti step di preparazione)
- * - M:N con Ingrediente (attraverso la tabella Preparazione)
- * - 1:N con UserFavorito (un cocktail può essere nei preferiti di molti utenti)
+ * Relationships:
+ * - 1:N with Preparazione (a cocktail has many preparation steps)
+ * - M:N with Ingrediente (through the Preparazione table)
+ * - 1:N with UserFavorito (a cocktail can be favorited by many users)
  */
 @Entity
 @Table(name = "cocktail")

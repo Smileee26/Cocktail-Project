@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * IngredientController - Endpoint REST per la gestione degli ingredienti.
+ * IngredientController - REST endpoints for managing ingredients.
  *
- * Responsabilità:
- * - Espone API separate dagli endpoint dei cocktail
- * - Fornisce operazioni di lettura e cancellazione degli ingredienti
- * - Usa la paginazione per evitare payload troppo grandi
+ * Responsibilities:
+ * - Exposes APIs separate from the cocktail endpoints
+ * - Provides ingredient read and delete operations
+ * - Uses pagination to avoid oversized payloads
  */
 @RestController
 @RequestMapping("/api/ingredients")
@@ -38,14 +38,14 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     /**
-     * Costruttore con injection del service.
+     * Constructor with service injection.
      */
     public IngredientController(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
     }
 
     /**
-     * GET /api/ingredients - Restituisce una lista paginata di ingredienti.
+     * GET /api/ingredients - Returns a paginated list of ingredients.
      */
     @Operation(summary =  "Ottieni tutti gli ingredienti disponibili", description = "Restituisce una lista paginata di tutti gli ingredienti presenti nel sistema")
     @ApiResponses(value = {
@@ -63,7 +63,7 @@ public class IngredientController {
     }
 
     /**
-     * GET /api/ingredients/search?nome=xxx - Cerca ingredienti per nome con paginazione.
+     * GET /api/ingredients/search?nome=xxx - Searches ingredients by name with pagination.
      */
     @Operation(summary = "Cerca ingredienti per nome", description = "Restituisce una lista paginata di ingredienti che corrispondono al nome ricercato (ricerca parziale case-insensitive)")
     @ApiResponses(value = {
@@ -83,7 +83,7 @@ public class IngredientController {
     }
 
     /**
-     * DELETE /api/ingredients/{id} - Elimina l'ingrediente e i riferimenti negli step di preparazione.
+     * DELETE /api/ingredients/{id} - Deletes the ingredient and references in preparation steps.
      */
     @Operation(summary =  "Elimina un ingrediente", description = "Elimina un ingrediente dal sistema")
     @ApiResponses(value = {

@@ -1,15 +1,15 @@
 -- ============================================
 -- DATABASE COCKTAIL PROJECT
--- Struttura relazionale per gestire cocktail,
--- ingredienti e preparazioni
+-- Relational structure for managing cocktails,
+-- ingredients, and preparations
 -- ============================================
 
--- Seleziona il database (già creato automaticamente da MYSQL_DATABASE)
+-- Select the database (already created automatically by MYSQL_DATABASE)
 USE init;
 
 -- ============================================
--- TABELLA: cocktail
--- Contiene le informazioni di base sui cocktail
+-- TABLE: cocktail
+-- Contains basic cocktail information
 -- ============================================
 CREATE TABLE cocktail (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -20,9 +20,9 @@ CREATE TABLE cocktail (
 );
 
 -- ============================================
--- TABELLA: ingredienti
--- Contiene l'elenco di tutti gli ingredienti
--- disponibili per preparare i cocktail
+-- TABLE: ingredients
+-- Contains the list of all ingredients
+-- available for preparing cocktails
 -- ============================================
 CREATE TABLE ingredienti (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -30,10 +30,10 @@ CREATE TABLE ingredienti (
 );
 
 -- ============================================
--- TABELLA: preparazione
--- Join table che collega cocktail e ingredienti.
--- Ogni record rappresenta uno STEP della ricetta
--- con quantità, unità di misura e istruzione
+-- TABLE: preparation
+-- Join table linking cocktails and ingredients.
+-- Each record represents one recipe STEP
+-- with quantity, unit of measure, and instruction
 -- ============================================
 CREATE TABLE preparazione (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -44,7 +44,7 @@ CREATE TABLE preparazione (
   step_order INT NOT NULL,
   istruzione TEXT,
   
-  -- Vincoli di integrità referenziale
+  -- Referential integrity constraints
   CONSTRAINT fk_prep_cocktail FOREIGN KEY (cocktail_id) 
     REFERENCES cocktail(id) ON DELETE CASCADE,
   CONSTRAINT fk_prep_ingrediente FOREIGN KEY (ingrediente_id) 
@@ -52,7 +52,7 @@ CREATE TABLE preparazione (
 );
 
 -- ============================================
--- INDICI per migliorare le performance
+-- INDEXES to improve performance
 -- ============================================
 CREATE INDEX idx_prep_cocktail ON preparazione(cocktail_id);
 CREATE INDEX idx_prep_ingrediente ON preparazione(ingrediente_id);
@@ -61,7 +61,7 @@ CREATE INDEX idx_prep_ingrediente ON preparazione(ingrediente_id);
 
 
 -- ============================================
--- DATI: Inserimento cocktail
+-- DATA: Insert cocktails
 -- ============================================
 INSERT INTO cocktail (id, nome, descrizione, tempo_preparazione_minutes)
 VALUES
@@ -74,9 +74,9 @@ VALUES
 
 
 -- ============================================
--- DATI: Inserimento ingredienti
--- Elenco completo degli ingredienti utilizzati
--- nei cocktail del database
+-- DATA: Insert ingredients
+-- Complete list of ingredients used
+-- in the database cocktails
 -- ============================================
 INSERT INTO ingredienti (id, nome)
 VALUES
@@ -99,9 +99,9 @@ VALUES
 (17, 'Assenzio');                -- Distillato all'anice
 
 -- ============================================
--- DATI: Preparazione cocktail
--- Ogni record è uno STEP della ricetta,
--- ordinato per step_order
+-- DATA: Cocktail preparation
+-- Each record is one recipe STEP,
+-- ordered by step_order
 -- ============================================
 
 -- COCKTAIL #1: Last Word
@@ -147,27 +147,27 @@ VALUES
 (5, 17, 2, 'dash', 5, 'Aggiungere un tocco di assenzio e shakerare.');
 
 -- ============================================
--- TABELLA: user_favoriti
--- Gestisce i cocktail preferiti degli utenti
--- L'ID utente viene estratto dal JWT token di Keycloak
+-- TABLE: user_favoriti
+-- Manages users' favorite cocktails
+-- The user ID is extracted from the Keycloak JWT
 -- ============================================
 CREATE TABLE user_favoriti (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   keycloak_user_id VARCHAR(255) NOT NULL COMMENT 'UUID utente da Keycloak JWT (claim sub)',
   cocktail_id BIGINT NOT NULL,
   
-  -- Vincoli di integrità referenziale
+  -- Referential integrity constraints
   CONSTRAINT fk_favoriti_cocktail FOREIGN KEY (cocktail_id) 
     REFERENCES cocktail(id) ON DELETE CASCADE,
   
-  -- Evita duplicati: un utente può salvare lo stesso cocktail una sola volta
+  -- Prevent duplicates: a user can save the same cocktail only once
   CONSTRAINT uk_user_cocktail UNIQUE (keycloak_user_id, cocktail_id)
 );
 
--- Indici per performance
+-- Indexes for performance
 CREATE INDEX idx_favoriti_user ON user_favoriti(keycloak_user_id);
 CREATE INDEX idx_favoriti_cocktail ON user_favoriti(cocktail_id);
 
 -- ============================================
--- FINE SCRIPT DATABASE
+-- END OF DATABASE SCRIPT
 -- ============================================

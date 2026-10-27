@@ -8,68 +8,68 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * UserFavoritoRepository - Accesso ai dati della tabella user_favoriti
+ * UserFavoritoRepository - Data access for the user_favoriti table
  * 
- * Gestisce la relazione Many-to-Many tra utenti (Keycloak) e cocktail.
- * L'ID utente è l'UUID estratto dal JWT token (claim 'sub').
+ * Manages the many-to-many relationship between users (Keycloak) and cocktails.
+ * The user ID is the UUID extracted from the JWT (claim 'sub').
  * 
- * Operazioni automatiche (da JpaRepository):
- * - findAll(): ottieni tutti i favoriti di tutti gli utenti
- * - save(favorito): aggiungi un nuovo favorito
- * - delete(favorito): rimuovi un favorito
+ * Automatic operations (from JpaRepository):
+ * - findAll(): get all favorites for all users
+ * - save(favorito): add a new favorite
+ * - delete(favorito): remove a favorite
  * 
- * Query custom:
- * - Ricerca favoriti per utente
- * - Verifica esistenza favorito
- * - Conteggio favoriti per utente
- * - Cancellazione per cocktail
+ * Custom queries:
+ * - Search favorites by user
+ * - Check whether a favorite exists
+ * - Count favorites by user
+ * - Delete by cocktail
  */
 @Repository
 public interface UserFavoritoRepository extends JpaRepository<UserFavorito, Long> {
     
     /**
-     * Trova tutti i cocktail preferiti di un utente
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @return Lista di tutti i favoriti dell'utente
+     * Finds all favorite cocktails for a user.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @return list of all user favorites
      */
     List<UserFavorito> findByKeycloakUserId(String keycloakUserId);
     
     /**
-     * Verifica se un cocktail è già nei favoriti di un utente
-     * Utile per prevenire duplicati e per mostrare lo stato "preferito" nel frontend
+     * Checks whether a cocktail is already in a user's favorites.
+     * Useful for preventing duplicates and showing the "favorite" state in the frontend.
      * 
-     * @param keycloakUserId UUID utente da JWT
-     * @param cocktailId ID del cocktail da verificare
-     * @return true se è già nei favoriti, false altrimenti
+     * @param keycloakUserId user UUID from the JWT
+     * @param cocktailId ID of the cocktail to check
+     * @return true if it is already a favorite, false otherwise
      */
     boolean existsByKeycloakUserIdAndCocktailId(String keycloakUserId, Long cocktailId);
     
     /**
-     * Trova un favorito specifico (combinazione utente + cocktail)
-     * Usato per rimuovere un favorito esistente
+     * Finds a specific favorite (user + cocktail combination).
+     * Used to remove an existing favorite.
      * 
-     * @param keycloakUserId UUID utente da JWT
-     * @param cocktailId ID del cocktail
-     * @return Optional contenente il favorito se esiste
+     * @param keycloakUserId user UUID from the JWT
+     * @param cocktailId cocktail ID
+     * @return Optional containing the favorite if it exists
      */
     Optional<UserFavorito> findByKeycloakUserIdAndCocktailId(String keycloakUserId, Long cocktailId);
     
     /**
-     * Conta quanti cocktail ha nei preferiti un utente
-     * Utile per badge/contatori nel frontend
+     * Counts how many cocktails a user has in favorites.
+     * Useful for badges/counters in the frontend.
      * 
-     * @param keycloakUserId UUID utente da JWT
-     * @return Numero totale di favoriti dell'utente
+     * @param keycloakUserId user UUID from the JWT
+     * @return total number of user favorites
      */
     long countByKeycloakUserId(String keycloakUserId);
     
     /**
-     * Elimina tutti i favoriti associati a un cocktail
+     * Deletes all favorites associated with a cocktail.
      * 
-     * Chiamato automaticamente prima di eliminare un cocktail (cancellazione cascata).
-     * Previene constraint violation sul foreign key.
+     * Called automatically before deleting a cocktail (cascade deletion).
+     * Prevents a foreign key constraint violation.
      * 
-     * @param cocktailId ID del cocktail da cui rimuovere tutti i favoriti
+     * @param cocktailId ID of the cocktail from which to remove all favorites
      */
     void deleteByCocktailId(Long cocktailId);
 }

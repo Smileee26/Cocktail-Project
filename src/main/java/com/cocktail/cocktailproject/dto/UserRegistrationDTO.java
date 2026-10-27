@@ -8,10 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * UserRegistrationDTO - Dati per la registrazione di un nuovo utente
+ * UserRegistrationDTO - Data for registering a new user
  * 
- * Utilizzato nell'endpoint POST /api/auth/register
- * Tutti i campi sono obbligatori e validati
+ * Used by the POST /api/auth/register endpoint
+ * All fields are required and validated
  */
 @Data
 @NoArgsConstructor

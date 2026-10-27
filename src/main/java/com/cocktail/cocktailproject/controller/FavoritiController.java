@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller per gestire i cocktail preferiti degli utenti
- * Tutte le operazioni richiedono autenticazione JWT
- * L'ID utente viene automaticamente estratto dal token JWT di Keycloak (claim 'sub')
+ * Controller for managing users' favorite cocktails.
+ * All operations require JWT authentication.
+ * The user ID is automatically extracted from the Keycloak JWT (claim 'sub').
  */
 @RestController
 @RequestMapping("/api/favoriti")
@@ -36,7 +36,7 @@ public class FavoritiController {
     private FavoritiService favoritiService;
     
     /**
-     * POST /api/favoriti/{cocktailId} - Aggiungi un cocktail ai favoriti
+     * POST /api/favoriti/{cocktailId} - Adds a cocktail to favorites
      */
     @Operation(
         summary = "Aggiungi cocktail ai favoriti", 
@@ -75,7 +75,7 @@ public class FavoritiController {
     }
     
     /**
-     * DELETE /api/favoriti/{cocktailId} - Rimuovi un cocktail dai favoriti
+     * DELETE /api/favoriti/{cocktailId} - Removes a cocktail from favorites
      */
     @Operation(
         summary = "Rimuovi cocktail dai favoriti",
@@ -112,7 +112,7 @@ public class FavoritiController {
     }
     
     /**
-     * GET /api/favoriti - Ottieni tutti i cocktail preferiti
+     * GET /api/favoriti - Gets all favorite cocktails
      */
     @Operation(
         summary = "Ottieni i cocktail preferiti",
@@ -134,7 +134,7 @@ public class FavoritiController {
     }
     
     /**
-     * GET /api/favoriti/check/{cocktailId} - Verifica se un cocktail è nei favoriti
+     * GET /api/favoriti/check/{cocktailId} - Checks whether a cocktail is in favorites
      */
     @Operation(
         summary = "Verifica se un cocktail è nei favoriti",
@@ -159,7 +159,7 @@ public class FavoritiController {
     }
     
     /**
-     * GET /api/favoriti/count - Conta i favoriti dell'utente
+     * GET /api/favoriti/count - Counts the user's favorites
      */
     @Operation(
         summary = "Conta i cocktail preferiti",
@@ -180,7 +180,7 @@ public class FavoritiController {
     }
     
     /**
-     * POST /api/favoriti/toggle/{cocktailId} - Toggle favorito (aggiungi/rimuovi)
+     * POST /api/favoriti/toggle/{cocktailId} - Toggles a favorite (add/remove)
      */
     @Operation(
         summary = "Toggle cocktail nei favoriti", 
@@ -219,11 +219,11 @@ public class FavoritiController {
     }
     
     /**
-     * Estrae l'ID utente (UUID) dal token JWT di Keycloak
-     * Il claim 'sub' (subject) contiene l'UUID univoco dell'utente
+     * Extracts the user ID (UUID) from the Keycloak JWT
+     * The 'sub' (subject) claim contains the user's unique UUID
      * 
-     * @param authentication Oggetto di autenticazione Spring Security
-     * @return UUID utente Keycloak (claim 'sub')
+     * @param authentication Spring Security authentication object
+     * @return Keycloak user UUID (claim 'sub')
      */
     private String getUserIdFromToken(Authentication authentication) {
         Jwt jwt = (Jwt) authentication.getPrincipal();

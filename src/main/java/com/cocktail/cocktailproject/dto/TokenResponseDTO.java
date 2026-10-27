@@ -6,9 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * TokenResponseDTO - Risposta contenente il token di accesso da Keycloak
+ * TokenResponseDTO - Response containing the Keycloak access token
  * 
- * Utilizzato per restituire l'access token dopo il login
+ * Used to return the access token after login
  */
 @Data
 @NoArgsConstructor

@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * CocktailprojectApplication - Punto di avvio dell'app
- * Avvia Spring Boot sulla porta 8080
+ * CocktailprojectApplication - Application entry point
+ * Starts Spring Boot on port 8080
  */
 @SpringBootApplication
 public class CocktailprojectApplication {

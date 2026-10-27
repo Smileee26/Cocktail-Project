@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * IngredientService - Logica di business per la gestione degli ingredienti.
+ * IngredientService - Business logic for managing ingredients.
  *
- * Responsabilità:
- * - Fornire operazioni di lettura (paginata) degli ingredienti
- * - Eseguire cancellazioni in sicurezza rimuovendo prima gli step di preparazione collegati
- * - Effettuare conversioni essenziali Entity -> DTO
+ * Responsibilities:
+ * - Provide paginated ingredient read operations
+ * - Safely delete ingredients by first removing linked preparation steps
+ * - Perform essential Entity -> DTO conversions
  */
 @Service
 public class IngredientService {
@@ -24,7 +24,7 @@ public class IngredientService {
     private final PreparazioneRepository preparazioneRepository;
 
     /**
-     * Costruttore con dependency injection dei repository.
+     * Constructor using repository dependency injection.
      */
     public IngredientService(IngredienteRepository ingredienteRepository,
                              PreparazioneRepository preparazioneRepository) {
@@ -33,9 +33,9 @@ public class IngredientService {
     }
 
     /**
-     * Restituisce una pagina di ingredienti.
-     * @param pageable parametri di paginazione
-     * @return pagina di IngredientiDTO
+     * Returns a page of ingredients.
+     * @param pageable pagination parameters
+     * @return page of IngredientiDTO objects
      */
     public Page<IngredientiDTO> getAllIngredients(Pageable pageable) {
         return ingredienteRepository.findAll(pageable)
@@ -43,10 +43,10 @@ public class IngredientService {
     }
 
     /**
-     * Cerca ingredienti per nome con paginazione (ricerca parziale case-insensitive).
-     * @param nome Stringa da cercare nel nome dell'ingrediente
-     * @param pageable parametri di paginazione
-     * @return pagina di IngredientiDTO che corrispondono alla ricerca
+     * Searches ingredients by name with pagination (case-insensitive partial search).
+     * @param nome string to search for in the ingredient name
+     * @param pageable pagination parameters
+     * @return page of IngredientiDTO objects matching the search
      */
     public Page<IngredientiDTO> searchByName(String nome, Pageable pageable) {
         return ingredienteRepository.findByNomeContainingIgnoreCase(nome, pageable)
@@ -54,23 +54,23 @@ public class IngredientService {
     }
 
     /**
-     * Elimina un ingrediente per ID, rimuovendo prima i riferimenti negli step di preparazione.
-     * @param id ID dell'ingrediente da eliminare
-     * @return true se eliminato, false se non esistente
+     * Deletes an ingredient by ID, first removing references from preparation steps.
+     * @param id ID of the ingredient to delete
+     * @return true if deleted, false if it does not exist
      */
     @Transactional
     public boolean deleteIngredient(Long id) {
         if (!ingredienteRepository.existsById(id)) {
             return false;
         }
-        // Cancella gli step di preparazione che referenziano l'ingrediente, poi elimina l'ingrediente
+        // Delete preparation steps referencing the ingredient, then delete the ingredient
         preparazioneRepository.deleteByIngredienteId(id);
         ingredienteRepository.deleteById(id);
         return true;
     }
 
     /**
-     * Conversione minimale dell'entity Ingrediente in DTO.
+     * Minimal conversion from Ingrediente entity to DTO.
      */
     private IngredientiDTO convertToDTO(Ingrediente ingrediente) {
         return new IngredientiDTO(ingrediente.getId(), ingrediente.getNome());

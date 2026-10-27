@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * CocktailDTO - Data Transfer Object per i Cocktail
+ * CocktailDTO - Data Transfer Object for cocktails
  * 
- * Usato per trasferire dati tra il Controller e i Client (HTTP).
- * Combina i dati di Cocktail con una lista formattata di StepPreparazioneDTO.
- * DTO = serve a nascondere dettagli del database e presentare dati puliti/formattatati al client.
+ * Used to transfer data between the controller and HTTP clients.
+ * Combines cocktail data with a formatted list of StepPreparazioneDTO objects.
+ * DTOs hide database details and present clean, formatted data to the client.
  */
 @Data
 @NoArgsConstructor
@@ -25,8 +25,8 @@ public class CocktailDTO {
     private List<StepPreparazioneDTO> preparazione;
 
     /**
-     * StepPreparazioneDTO - Uno step della ricetta
-     * Es: 25ml Gin, 2 oz tequila, ecc.
+     * StepPreparazioneDTO - One recipe preparation step
+     * Example: 25 ml gin, 2 oz tequila, etc.
      */
     @Data
     @NoArgsConstructor

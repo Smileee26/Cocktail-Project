@@ -14,17 +14,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * FavoritiService - Gestione cocktail preferiti per utenti autenticati
+ * FavoritiService - Favorite cocktail management for authenticated users
  * 
- * Come funziona:
- * - L'ID utente (UUID) viene estratto dal JWT token di Keycloak (claim 'sub')
- * - Ogni utente può avere una lista personale di cocktail preferiti
- * - La relazione user-cocktail è Many-to-Many (un utente → molti cocktail preferiti)
- * - I favoriti sono persistiti nella tabella user_favoriti
+ * How it works:
+ * - The user ID (UUID) is extracted from the Keycloak JWT (claim 'sub')
+ * - Each user can have a personal list of favorite cocktails
+ * - The user-cocktail relationship is many-to-many (one user -> many favorite cocktails)
+ * - Favorites are persisted in the user_favoriti table
  * 
- * Vincoli:
- * - Un utente non può aggiungere lo stesso cocktail due volte ai preferiti
- * - Se un cocktail viene eliminato, i favoriti associati vengono cancellati in cascata
+ * Constraints:
+ * - A user cannot add the same cocktail to favorites twice
+ * - If a cocktail is deleted, its associated favorites are deleted in cascade
  */
 @Service
 public class FavoritiService {
@@ -39,22 +39,22 @@ public class FavoritiService {
     private CocktailService cocktailService;
     
     /**
-     * Aggiunge un cocktail ai favoriti dell'utente
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @param cocktailId ID del cocktail
+     * Adds a cocktail to the user's favorites.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @param cocktailId cocktail ID
      */
     @Transactional
     public void aggiungiPreferito(String keycloakUserId, Long cocktailId) {
-        // Verifica che il cocktail esista
+        // Verify that the cocktail exists
         Cocktail cocktail = cocktailRepository.findById(cocktailId)
                 .orElseThrow(() -> new RuntimeException("Cocktail non trovato con ID: " + cocktailId));
         
-        // Verifica se già nei favoriti
+        // Check whether it is already a favorite
         if (favoritiRepository.existsByKeycloakUserIdAndCocktailId(keycloakUserId, cocktailId)) {
             throw new RuntimeException("Cocktail già presente nei favoriti");
         }
         
-        // Crea e salva il favorito
+        // Create and save the favorite
         UserFavorito favorito = new UserFavorito();
         favorito.setKeycloakUserId(keycloakUserId);
         favorito.setCocktail(cocktail);
@@ -62,9 +62,9 @@ public class FavoritiService {
     }
     
     /**
-     * Rimuove un cocktail dai favoriti
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @param cocktailId ID del cocktail
+     * Removes a cocktail from favorites.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @param cocktailId cocktail ID
      */
     @Transactional
     public void rimuoviPreferito(String keycloakUserId, Long cocktailId) {
@@ -76,9 +76,9 @@ public class FavoritiService {
     }
     
     /**
-     * Ottiene tutti i cocktail preferiti di un utente
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @return Lista di cocktail preferiti
+     * Gets all favorite cocktails for a user.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @return list of favorite cocktails
      */
     public List<CocktailDTO> getPreferiti(String keycloakUserId) {
         List<UserFavorito> favoriti = favoritiRepository.findByKeycloakUserId(keycloakUserId);
@@ -91,48 +91,48 @@ public class FavoritiService {
     }
     
     /**
-     * Verifica se un cocktail è nei favoriti di un utente
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @param cocktailId ID del cocktail
-     * @return true se è nei favoriti, false altrimenti
+     * Checks whether a cocktail is in a user's favorites.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @param cocktailId cocktail ID
+     * @return true if it is a favorite, false otherwise
      */
     public boolean isPreferito(String keycloakUserId, Long cocktailId) {
         return favoritiRepository.existsByKeycloakUserIdAndCocktailId(keycloakUserId, cocktailId);
     }
     
     /**
-     * Conta quanti favoriti ha un utente
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @return Numero di cocktail nei favoriti
+     * Counts a user's favorites.
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @return number of cocktails in the favorites
      */
     public long contaPreferiti(String keycloakUserId) {
         return favoritiRepository.countByKeycloakUserId(keycloakUserId);
     }
     
     /**
-     * Toggle: aggiunge il cocktail ai favoriti se non c'è, altrimenti lo rimuove
-     * Ideale per frontend con pulsante on/off
+     * Toggle: adds the cocktail to favorites if absent, otherwise removes it.
+     * Ideal for frontends with an on/off button.
      * 
-     * @param keycloakUserId UUID utente da JWT (claim 'sub')
-     * @param cocktailId ID del cocktail
-     * @return true se aggiunto, false se rimosso
+     * @param keycloakUserId user UUID from the JWT (claim 'sub')
+     * @param cocktailId cocktail ID
+     * @return true if added, false if removed
      */
     @Transactional
     public boolean togglePreferito(String keycloakUserId, Long cocktailId) {
-        // Verifica che il cocktail esista
+        // Verify that the cocktail exists
         Cocktail cocktail = cocktailRepository.findById(cocktailId)
                 .orElseThrow(() -> new RuntimeException("Cocktail non trovato con ID: " + cocktailId));
         
-        // Controlla se è già nei favoriti
+        // Check whether it is already a favorite
         Optional<UserFavorito> esistente = favoritiRepository
                 .findByKeycloakUserIdAndCocktailId(keycloakUserId, cocktailId);
         
         if (esistente.isPresent()) {
-            // Rimuovi dai favoriti
+            // Remove from favorites
             favoritiRepository.delete(esistente.get());
             return false;  // false = rimosso
         } else {
-            // Aggiungi ai favoriti
+            // Add to favorites
             UserFavorito favorito = new UserFavorito();
             favorito.setKeycloakUserId(keycloakUserId);
             favorito.setCocktail(cocktail);

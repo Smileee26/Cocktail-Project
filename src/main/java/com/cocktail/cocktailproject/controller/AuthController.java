@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * AuthController - Endpoint per autenticazione e registrazione
+ * AuthController - Authentication and registration endpoints
  * 
- * Gestisce:
- * - Login utenti (Resource Owner Password Credentials)
- * - Registrazione nuovi utenti su Keycloak
+ * Handles:
+ * - User login (Resource Owner Password Credentials)
+ * - New user registration on Keycloak
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -38,10 +38,10 @@ public class AuthController {
     private KeycloakUserService keycloakUserService;
 
     /**
-     * POST /api/auth/login - Effettua il login e ottiene un access token
+     * POST /api/auth/login - Logs in and obtains an access token
      * 
-     * Endpoint pubblico (nessuna autenticazione richiesta)
-     * Usa il flusso Resource Owner Password Credentials (ROPC)
+     * Public endpoint (no authentication required)
+     * Uses the Resource Owner Password Credentials (ROPC) flow
      */
     @Operation(
         summary = "Login utente",
@@ -84,7 +84,7 @@ public class AuthController {
             @Valid @RequestBody LoginRequestDTO loginRequest,
             BindingResult bindingResult) {
 
-        // Verifica errori di validazione
+        // Check for validation errors
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors()
                     .stream()
@@ -99,14 +99,14 @@ public class AuthController {
         }
 
         try {
-            // Effettua il login tramite Keycloak
+            // Log in through Keycloak
             TokenResponseDTO tokenResponse = keycloakUserService.login(loginRequest);
 
-            // Restituisci il token in formato JSON con campo "access_token" e "expires_in"
+            // Return the token as JSON with "access_token" and "expires_in" fields
             return ResponseEntity.ok(tokenResponse);
 
         } catch (RuntimeException e) {
-            // Gestisci errori di autenticazione
+            // Handle authentication errors
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", e.getMessage());
@@ -120,10 +120,10 @@ public class AuthController {
     }
 
     /**
-     * POST /api/auth/register - Registra un nuovo utente
+     * POST /api/auth/register - Registers a new user
      * 
-     * Endpoint pubblico (nessuna autenticazione richiesta)
-     * Crea un nuovo utente su Keycloak con ruolo "user" di default
+     * Public endpoint (no authentication required)
+     * Creates a new user on Keycloak with the default "user" role
      */
     @Operation(
         summary = "Registra un nuovo utente",
@@ -164,7 +164,7 @@ public class AuthController {
 
         Map<String, Object> response = new HashMap<>();
 
-        // Verifica errori di validazione
+        // Check for validation errors
         if (bindingResult.hasErrors()) {
             String errors = bindingResult.getAllErrors()
                     .stream()
@@ -177,7 +177,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
-        // Verifica che password e confirmPassword coincidano
+        // Verify that password and confirmPassword match
         if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
             response.put("success", false);
             response.put("message", "Password e conferma password non coincidono");
@@ -185,7 +185,7 @@ public class AuthController {
         }
 
         try {
-            // Crea l'utente su Keycloak
+            // Create the user on Keycloak
             String message = keycloakUserService.createUser(registrationDTO);
 
             response.put("success", true);
@@ -196,14 +196,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (RuntimeException e) {
-            // Gestisci errori specifici (es: utente già esistente)
+            // Handle specific errors (e.g. user already exists)
             if (e.getMessage().contains("già in uso")) {
                 response.put("success", false);
                 response.put("message", e.getMessage());
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 
-            // Errore generico
+            // Generic error
             response.put("success", false);
             response.put("message", "Errore durante la registrazione: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

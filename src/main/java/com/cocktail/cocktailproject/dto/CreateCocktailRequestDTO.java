@@ -8,25 +8,25 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * CreateCocktailRequestDTO - DTO per la creazione di un nuovo cocktail
+ * CreateCocktailRequestDTO - DTO for creating a new cocktail
  * 
- * Contiene:
- * - Dati del cocktail (nome, descrizione, tempo, note)
- * - Lista di ingredienti con quantità e unità
- * - Preparazione (opzionale - default: "Mescolare gli ingredienti")
+ * Contains:
+ * - Cocktail data (name, description, time, notes)
+ * - List of ingredients with quantities and units
+ * - Preparation (optional - default: "Mescolare gli ingredienti")
  * 
  * Esempio JSON:
  * {
  *   "nome": "Margarita",
- *   "descrizione": "Cocktail classico messicano",
+ *   "descrizione": "Classic Mexican cocktail",
  *   "tempoPreparazioneMinutes": 5,
- *   "note": "Servire freddo",
+ *   "note": "Serve chilled",
  *   "ingredienti": [
  *     { "nome": "tequila", "quantita": 2, "unita": "oz" },
  *     { "nome": "lime juice", "quantita": 1, "unita": "oz" },
  *     { "nome": "triple sec", "quantita": 0.5, "unita": "oz" }
  *   ],
- *   "preparazione": "Versare in un shaker con ghiaccio. Agitare e versare in un bicchiere con ghiaccio"
+ *   "preparazione": "Pour into a shaker with ice. Shake and pour into a glass with ice"
  * }
  */
 @Data
@@ -42,7 +42,7 @@ public class CreateCocktailRequestDTO {
     private String preparazione;
     
     /**
-     * IngredienteStepDTO - Rappresenta un ingrediente con quantità per il cocktail
+     * IngredienteStepDTO - Represents an ingredient with its cocktail quantity
      */
     @Data
     @NoArgsConstructor

@@ -6,23 +6,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity Ingrediente - Catalogo degli ingredienti disponibili nel sistema
+ * Ingrediente entity - Catalog of ingredients available in the system
  * 
- * Tabella: ingredienti
+ * Table: ingredienti
  * 
- * Campi:
- * - id: Chiave primaria auto-incrementale
- * - nome: Nome ingrediente (max 150 caratteri, obbligatorio, UNIQUE)
+ * Fields:
+ * - id: Auto-incrementing primary key
+ * - nome: Ingredient name (max 150 characters, required, UNIQUE)
  * 
- * Vincoli:
- * - Il nome deve essere univoco (non possono esistere due ingredienti con lo stesso nome)
- * - Normalizzazione: i nomi vengono salvati in lowercase per evitare duplicati
+ * Constraints:
+ * - The name must be unique (two ingredients cannot have the same name)
+ * - Normalization: names are stored in lowercase to prevent duplicates
  * 
- * Relazioni:
- * - 1:N con Preparazione (un ingrediente può essere usato in molti cocktail)
+ * Relationships:
+ * - 1:N with Preparazione (an ingredient can be used in many cocktails)
  * 
- * Nota: Gli ingredienti NON vengono eliminati quando un cocktail viene cancellato,
- * perché possono essere riutilizzati in altri cocktail.
+ * Note: Ingredients are NOT deleted when a cocktail is deleted,
+ * because they can be reused in other cocktails.
  */
 @Entity
 @Table(name = "ingredienti")

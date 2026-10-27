@@ -9,32 +9,32 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 /**
- * IngredienteRepository - Accesso ai dati della tabella ingredienti
+ * IngredienteRepository - Data access for the ingredients table
  * 
- * Operazioni automatiche (da JpaRepository):
- * - findAll(): ottieni tutti gli ingredienti
- * - findById(id): ottieni ingrediente per ID
- * - save(ingrediente): crea o aggiorna un ingrediente
- * - deleteById(id): elimina un ingrediente
+ * Automatic operations (from JpaRepository):
+ * - findAll(): get all ingredients
+ * - findById(id): get an ingredient by ID
+ * - save(ingrediente): create or update an ingredient
+ * - deleteById(id): delete an ingredient
  * 
- * Query custom:
- * - Ricerca per nome esatto e case-insensitive
+ * Custom queries:
+ * - Search by exact name, case-insensitive
  */
 @Repository
 public interface IngredienteRepository extends JpaRepository<Ingrediente, Long> {
     
     /**
-     * Cerca ingrediente per nome ignorando maiuscole/minuscole (raccomandato)
-     * @param nome Nome da cercare ("gin" trova "Gin", "GIN", "gin")
-     * @return Optional contenente l'ingrediente se trovato
+     * Searches for an ingredient by name, ignoring case (recommended).
+     * @param nome name to search for ("gin" finds "Gin", "GIN", "gin")
+     * @return Optional containing the ingredient if found
      */
     Optional<Ingrediente> findByNomeIgnoreCase(String nome);
     
     /**
-     * Cerca ingredienti per nome parziale con paginazione (case-insensitive)
-     * @param nome Stringa da cercare nel nome ("lim" trova "lime", "limone", ecc.)
-     * @param pageable Parametri di paginazione
-     * @return Pagina di ingredienti che corrispondono alla ricerca
+     * Searches ingredients by partial name with pagination (case-insensitive).
+     * @param nome string to search for in the name ("lim" finds "lime", "limone", etc.)
+     * @param pageable pagination parameters
+     * @return page of ingredients matching the search
      */
     Page<Ingrediente> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 }

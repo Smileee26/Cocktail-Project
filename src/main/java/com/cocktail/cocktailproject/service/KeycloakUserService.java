@@ -29,28 +29,28 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * KeycloakUserService - Integrazione con Keycloak per autenticazione e gestione utenti
+ * KeycloakUserService - Keycloak integration for authentication and user management
  * 
- * Operazioni supportate:
- * 1. Login ROPC (Resource Owner Password Credentials)
- *    - L'utente invia username/password
- *    - Keycloak restituisce access_token JWT
- *    - Token usato per autenticare le chiamate API protette
+ * Supported operations:
+ * 1. ROPC login (Resource Owner Password Credentials)
+ *    - The user submits a username/password
+ *    - Keycloak returns a JWT access_token
+ *    - The token authenticates protected API calls
  * 
- * 2. Registrazione utenti
- *    - Crea nuovo utente su Keycloak
- *    - Imposta password
- *    - Assegna ruolo di default (USER)
- *    - Verifica unicità username ed email
+ * 2. User registration
+ *    - Creates a new user on Keycloak
+ *    - Sets the password
+ *    - Assigns the default role (USER)
+ *    - Verifies username and email uniqueness
  * 
- * 3. Gestione ruoli
- *    - Assegna ruoli realm agli utenti
- *    - I ruoli determinano i permessi (es: SOLDIER per operazioni write)
+ * 3. Role management
+ *    - Assigns realm roles to users
+ *    - Roles determine permissions (e.g. SOLDIER for write operations)
  * 
- * Configurazione:
- * - Le credenziali admin Keycloak sono in application.properties
- * - Il realm di destinazione è configurabile
- * - Supporta client con o senza client_secret
+ * Configuration:
+ * - Keycloak admin credentials are in application.properties
+ * - The target realm is configurable
+ * - Supports clients with or without a client_secret
  */
 @Service
 public class KeycloakUserService {
@@ -83,18 +83,18 @@ public class KeycloakUserService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
     
-    // Constructor Injection per ObjectMapper e RestTemplate
+    // Constructor injection for ObjectMapper and RestTemplate
     public KeycloakUserService(ObjectMapper objectMapper, RestTemplate restTemplate) {
         this.objectMapper = objectMapper;
         this.restTemplate = restTemplate;
     }
 
     /**
-     * Effettua login con Resource Owner Password Credentials (ROPC)
+     * Logs in using Resource Owner Password Credentials (ROPC).
      * 
-     * @param loginRequest Username e password dell'utente
-     * @return Token response con access_token
-     * @throws RuntimeException Se le credenziali sono errate o il login fallisce
+     * @param loginRequest user's username and password
+     * @return token response with access_token
+     * @throws RuntimeException if credentials are invalid or login fails
      */
     public TokenResponseDTO login(LoginRequestDTO loginRequest) {
         String tokenUrl = serverUrl + "/realms/" + realm + "/protocol/openid-connect/token";
@@ -200,7 +200,7 @@ public class KeycloakUserService {
     }
 
     /**
-     * Crea una connessione admin a Keycloak
+     * Creates an admin connection to Keycloak.
      */
     private Keycloak getKeycloakInstance() {
         return KeycloakBuilder.builder()
@@ -213,24 +213,24 @@ public class KeycloakUserService {
     }
 
     /**
-     * Verifica se un utente esiste già (per username o email)
+     * Checks whether a user already exists (by username or email).
      * 
-     * @param username Username da verificare
-     * @param email Email da verificare
-     * @return true se l'utente esiste, false altrimenti
+     * @param username username to check
+     * @param email email to check
+     * @return true if the user exists, false otherwise
      */
     public boolean userExists(String username, String email) {
         try (Keycloak keycloak = getKeycloakInstance()) {
             RealmResource realmResource = keycloak.realm(realm);
             UsersResource usersResource = realmResource.users();
 
-            // Cerca per username
+            // Search by username
             List<UserRepresentation> usersByUsername = usersResource.search(username, true);
             if (!usersByUsername.isEmpty()) {
                 return true;
             }
 
-            // Cerca per email
+            // Search by email
             List<UserRepresentation> usersByEmail = usersResource.search(null, null, null, email, 0, 1);
             return !usersByEmail.isEmpty();
         } catch (Exception e) {
@@ -239,14 +239,14 @@ public class KeycloakUserService {
     }
 
     /**
-     * Crea un nuovo utente su Keycloak
+     * Creates a new user on Keycloak.
      * 
-     * @param registrationDTO Dati dell'utente da creare
-     * @return Messaggio di successo
-     * @throws RuntimeException Se l'utente esiste già o se la creazione fallisce
+     * @param registrationDTO data for the user to create
+     * @return success message
+     * @throws RuntimeException if the user already exists or creation fails
      */
     public String createUser(UserRegistrationDTO registrationDTO) {
-        // Verifica se l'utente esiste già
+        // Check whether the user already exists
         if (userExists(registrationDTO.getUsername(), registrationDTO.getEmail())) {
             throw new RuntimeException("Username o email già in uso");
         }
@@ -255,16 +255,16 @@ public class KeycloakUserService {
             RealmResource realmResource = keycloak.realm(realm);
             UsersResource usersResource = realmResource.users();
 
-            // Crea la rappresentazione dell'utente
+            // Create the user representation
             UserRepresentation user = new UserRepresentation();
             user.setUsername(registrationDTO.getUsername());
             user.setEmail(registrationDTO.getEmail());
             user.setFirstName(registrationDTO.getFirstName());
             user.setLastName(registrationDTO.getLastName());
             user.setEnabled(true);
-            user.setEmailVerified(false); // L'utente dovrà verificare l'email (se configurato)
+            user.setEmailVerified(false); // The user must verify the email (if configured)
 
-            // Crea l'utente
+            // Create the user
             Response response = usersResource.create(user);
 
             if (response.getStatus() != 201) {
@@ -272,18 +272,18 @@ public class KeycloakUserService {
                 throw new RuntimeException("Errore durante la creazione dell'utente: " + errorMessage);
             }
 
-            // Ottieni l'ID dell'utente appena creato
+            // Get the ID of the newly created user
             String userId = response.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
-            // Imposta la password
+            // Set the password
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);
             credential.setValue(registrationDTO.getPassword());
-            credential.setTemporary(false); // Non richiede cambio password al primo accesso
+            credential.setTemporary(false); // Does not require a password change on first login
 
             usersResource.get(userId).resetPassword(credential);
 
-            // Assegna il ruolo "User" di default
+            // Assign the default "User" role
             assignRoleToUser(keycloak, realmResource, userId, "USER");
 
             response.close();
@@ -295,23 +295,23 @@ public class KeycloakUserService {
     }
 
     /**
-     * Assegna un ruolo realm a un utente
+     * Assigns a realm role to a user.
      * 
-     * @param keycloak Istanza Keycloak
-     * @param realmResource Risorsa realm
-     * @param userId ID dell'utente
-     * @param roleName Nome del ruolo da assegnare
+     * @param keycloak Keycloak instance
+     * @param realmResource realm resource
+     * @param userId user ID
+     * @param roleName name of the role to assign
      */
     private void assignRoleToUser(Keycloak keycloak, RealmResource realmResource, String userId, String roleName) {
         try {
-            // Ottieni il ruolo realm
+            // Get the realm role
             RoleRepresentation role = realmResource.roles().get(roleName).toRepresentation();
 
-            // Assegna il ruolo all'utente
+            // Assign the role to the user
             realmResource.users().get(userId).roles().realmLevel().add(Collections.singletonList(role));
 
         } catch (Exception e) {
-            // Log dell'errore ma non blocca la creazione utente
+            // Log the error without blocking user creation
             System.err.println("Attenzione: impossibile assegnare il ruolo '" + roleName + "' all'utente: " + e.getMessage());
         }
     }

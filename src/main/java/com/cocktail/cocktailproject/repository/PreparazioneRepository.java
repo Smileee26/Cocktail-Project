@@ -7,40 +7,40 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * PreparazioneRepository - Accesso ai dati della tabella preparazione
+ * PreparazioneRepository - Data access for the preparation table
  * 
- * Operazioni automatiche (da JpaRepository):
- * - findAll(): ottieni tutti gli step di preparazione
- * - save(preparazione): crea o aggiorna uno step
- * - deleteById(id): elimina uno step
+ * Automatic operations (from JpaRepository):
+ * - findAll(): get all preparation steps
+ * - save(preparazione): create or update a step
+ * - deleteById(id): delete a step
  * 
- * Query custom:
- * - Ricerca step per cocktail con ordinamento
- * - Cancellazione di tutti gli step di un cocktail
+ * Custom queries:
+ * - Search steps by cocktail with ordering
+ * - Delete all steps for a cocktail
  */
 @Repository
 public interface PreparazioneRepository extends JpaRepository<Preparazione, Long> {
     
     /**
-     * Ottieni tutti gli step di preparazione di un cocktail, ordinati per numero step
-     * @param cocktailId ID del cocktail
-     * @return Lista di step ordinati (step 1, step 2, step 3, ...)
+     * Gets all preparation steps for a cocktail, ordered by step number.
+     * @param cocktailId cocktail ID
+     * @return list of ordered steps (step 1, step 2, step 3, ...)
      */
     List<Preparazione> findByCocktailIdOrderByStepOrderAsc(Long cocktailId);
     
     /**
-     * Elimina tutti gli step di preparazione di un cocktail
-     * Usato prima di eliminare un cocktail (cancellazione cascata)
+     * Deletes all preparation steps for a cocktail.
+     * Used before deleting a cocktail (cascade deletion).
      * 
-     * @param cocktailId ID del cocktail
+     * @param cocktailId cocktail ID
      */
     void deleteByCocktailId(Long cocktailId);
 
     /**
-     * Elimina tutti gli step che usano un determinato ingrediente
-     * Usato prima di eliminare un ingrediente
+     * Deletes all steps that use a specific ingredient.
+     * Used before deleting an ingredient.
      *
-     * @param ingredienteId ID dell'ingrediente
+     * @param ingredienteId ingredient ID
      */
     void deleteByIngredienteId(Long ingredienteId);
 }

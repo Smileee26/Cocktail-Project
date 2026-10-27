@@ -14,17 +14,17 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * SpringDocConfig - Configurazione OpenAPI/Swagger con Bearer Token Authentication
+ * SpringDocConfig - OpenAPI/Swagger configuration with Keycloak Authentication
  * 
  * Swagger UI: http://localhost:8080/swagger-ui.html
  * OpenAPI JSON: http://localhost:8080/v3/api-docs
  * 
  * Per autenticarsi:
- * 1. Chiama l'endpoint POST /api/auth/login con username e password
- * 2. Copia l'access_token dalla risposta
- * 3. Clicca "Authorize" in Swagger UI
- * 4. Incolla il token (senza prefisso "Bearer")
- * 5. Il token verrà automaticamente incluso in tutte le richieste protette
+ * 1. Call the POST /api/auth/login endpoint with username and password
+ * 2. Copy the access_token from the response
+ * 3. Click "Authorize" in Swagger UI
+ * 4. Paste the token (without the "Bearer" prefix)
+ * 5. The token will be automatically included in all protected requests
  */
 @Configuration
 public class SpringDocConfig {

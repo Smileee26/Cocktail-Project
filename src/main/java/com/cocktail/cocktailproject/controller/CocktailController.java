@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * CocktailController - Endpoint REST per gestione dei cocktail.
- * Contiene operazioni CRUD e ricerca con paginazione.
+ * CocktailController - REST endpoints for managing cocktails.
+ * Contains CRUD operations and paginated search.
  */
 @RestController
 @RequestMapping("/api/cocktails")
@@ -36,9 +36,9 @@ public class CocktailController {
     private CocktailService cocktailService;
 
     /**
-     * GET /api/cocktails - Ottiene tutti i cocktail con paginazione
-     * @param page numero pagina (default 0)
-     * @param size numero cocktail per pagina (default 10)
+     * GET /api/cocktails - Gets all cocktails with pagination
+     * @param page page number (default 0)
+     * @param size number of cocktails per page (default 10)
      */
     @Operation(summary = "Ottieni tutti i cocktail", description = "Restituisce una lista paginata di cocktail disponibili nel sistema")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class CocktailController {
     }
 
     /**
-     * GET /api/cocktails/{id} - Ottiene un cocktail per ID
+     * GET /api/cocktails/{id} - Gets a cocktail by ID
      */
     @Operation(summary = "Ottieni cocktail per ID", description = "Restituisce un cocktail specifico basato sul suo ID")
     @ApiResponses(value = {
@@ -73,10 +73,10 @@ public class CocktailController {
     }
 
     /**
-     * GET /api/cocktails/search?nome=xxx - Cerca cocktail per nome con paginazione
-     * @param nome nome da cercare
-     * @param page numero pagina (default 0)
-     * @param size numero cocktail per pagina (default 10)
+     * GET /api/cocktails/search?nome=xxx - Searches cocktails by name with pagination
+     * @param nome name to search for
+     * @param page page number (default 0)
+     * @param size number of cocktails per page (default 10)
      */
     @Operation(summary = "Cerca cocktail per nome", description = "Restituisce una lista paginata di cocktail che corrispondono al nome ricercato")
     @ApiResponses(value = {
@@ -96,19 +96,19 @@ public class CocktailController {
     }
 
     /**
-     * POST /api/cocktails - Crea un nuovo cocktail con ingredienti e preparazione
+     * POST /api/cocktails - Creates a new cocktail with ingredients and preparation
      * 
-     * Esempio request:
+     * Example request:
      * {
      *   "nome": "Margarita",
-     *   "descrizione": "Cocktail messicano",
+     *   "descrizione": "Mexican cocktail",
      *   "tempoPreparazioneMinutes": 5,
      *   "ingredienti": [
      *     { "nome": "tequila", "quantita": 2, "unita": "oz" },
      *     { "nome": "lime juice", "quantita": 1, "unita": "oz" },
      *     { "nome": "triple sec", "quantita": 0.5, "unita": "oz" }
      *   ],
-     *   "preparazione": "Versare in shaker con ghiaccio e agitare"
+     *   "preparazione": "Pour into a shaker with ice and shake"
      * }
      */
     @Operation(summary = "Crea un nuovo cocktail con ingredienti", description = "Crea un nuovo cocktail con almeno 2 ingredienti. Gli ingredienti non esistenti vengono creati automaticamente.")
@@ -129,7 +129,7 @@ public class CocktailController {
     }
 
     /**
-     * PUT /api/cocktails/{id} - Aggiorna un cocktail
+     * PUT /api/cocktails/{id} - Updates a cocktail
      */
     @Operation(summary = "Aggiorna un cocktail", description = "Aggiorna i dati di un cocktail esistente")
     @ApiResponses(value = {
@@ -150,7 +150,7 @@ public class CocktailController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } catch (Exception e) {
-            // Log l'errore per debugging
+            // Log the error for debugging
             System.err.println("Errore durante l'aggiornamento del cocktail " + id + ": " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -158,7 +158,7 @@ public class CocktailController {
     }
 
     /**
-     * DELETE /api/cocktails/{id} - Elimina un cocktail
+     * DELETE /api/cocktails/{id} - Deletes a cocktail
      */
     @Operation(summary = "Elimina un cocktail", description = "Elimina un cocktail dal sistema")
     @ApiResponses(value = {

@@ -19,14 +19,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * CocktailService - Logica di business per gestione cocktail
+ * CocktailService - Business logic for managing cocktails
  * 
- * Responsabilità:
- * - Operazioni CRUD (Create, Read, Update, Delete) sui cocktail
- * - Conversione tra Entity (database) e DTO (client)
- * - Validazione dei dati in ingresso
- * - Gestione ingredienti e step di preparazione
- * - Cancellazioni cascata (preparazione + favoriti)
+ * Responsibilities:
+ * - CRUD operations (Create, Read, Update, Delete) for cocktails
+ * - Conversion between Entity (database) and DTO (client)
+ * - Validation of incoming data
+ * - Ingredient and preparation step management
+ * - Cascade deletion (preparation steps + favorites)
  */
 @Service
 public class CocktailService {
@@ -36,7 +36,7 @@ public class CocktailService {
     private final PreparazioneRepository preparazioneRepository;
     private final UserFavoritoRepository userFavoritoRepository;
 
-    // Constructor Injection (Spring 4.3+): più testabile, immutabile e esplicito
+    // Constructor injection (Spring 4.3+): more testable, immutable, and explicit
     public CocktailService(
             CocktailRepository cocktailRepository,
             IngredienteRepository ingredienteRepository,
@@ -49,9 +49,9 @@ public class CocktailService {
     }
 
     /**
-     * Ottieni tutti i cocktail con paginazione (metodo raccomandato)
-     * @param pageable Parametri di paginazione (page, size, sort)
-     * @return Pagina di cocktail con metadata (totalElements, totalPages, etc.)
+     * Gets all cocktails with pagination (recommended method).
+     * @param pageable pagination parameters (page, size, sort)
+     * @return page of cocktails with metadata (totalElements, totalPages, etc.)
      */
     public Page<CocktailDTO> getAllCocktails(Pageable pageable) {
         return cocktailRepository.findAll(pageable)
@@ -59,9 +59,9 @@ public class CocktailService {
     }
 
     /**
-     * Ottieni un cocktail specifico per ID
-     * @param id ID univoco del cocktail
-     * @return Optional contenente il cocktail se trovato, altrimenti vuoto
+     * Gets a specific cocktail by ID.
+     * @param id unique cocktail ID
+     * @return Optional containing the cocktail if found, otherwise empty
      */
     public Optional<CocktailDTO> getCocktailById(Long id) {
         return cocktailRepository.findById(id)
@@ -69,12 +69,10 @@ public class CocktailService {
     }
 
     /**
-     * Cerca cocktail per nome senza paginazione (versione legacy)
-     * @param nome Stringa da cercare nel nome (case-insensitive, ricerca parziale)
-     * Cerca cocktail per nome con paginazione (metodo raccomandato)
-     * @param nome Stringa da cercare nel nome (case-insensitive, ricerca parziale)
-     * @param pageable Parametri di paginazione
-     * @return Pagina di cocktail che corrispondono alla ricerca
+     * Searches cocktails by name with pagination (recommended method).
+     * @param nome string to search for in the name (case-insensitive, partial search)
+     * @param pageable pagination parameters
+     * @return page of cocktails matching the search
      */
     public Page<CocktailDTO> searchByName(String nome, Pageable pageable) {
         return cocktailRepository.findByNomeContainingIgnoreCase(nome, pageable)
@@ -82,53 +80,53 @@ public class CocktailService {
     }
 
     /**
-     * Crea un nuovo cocktail completo con ingredienti e preparazione
+     * Creates a complete new cocktail with ingredients and preparation.
      * 
-     * Validazioni:
-     * - Nome obbligatorio e non vuoto
-     * - Minimo 2 ingredienti richiesti
-     * - No ingredienti duplicati nella stessa richiesta
+     * Validation:
+     * - Name is required and must not be blank
+     * - At least 2 ingredients are required
+     * - No duplicate ingredients in the same request
      * 
-     * Comportamento:
-     * - Gli ingredienti non esistenti vengono creati automaticamente
-     * - I nomi ingredienti sono normalizzati (lowercase, trim)
-     * - Gli step di preparazione sono numerati automaticamente
+     * Behavior:
+     * - Missing ingredients are created automatically
+     * - Ingredient names are normalized (lowercase, trim)
+     * - Preparation steps are numbered automatically
      * 
-     * @param requestDTO Dati del cocktail con lista ingredienti e istruzioni
-     * @return CocktailDTO del cocktail appena creato con tutti i dettagli
-     * @throws IllegalArgumentException Se validazione fallisce
+     * @param requestDTO cocktail data with ingredient list and instructions
+     * @return CocktailDTO for the newly created cocktail with all details
+     * @throws IllegalArgumentException if validation fails
      */
     @Transactional
     public CocktailDTO createCocktail(CreateCocktailRequestDTO requestDTO) {
-        // Validazione: verificare che ci siano almeno 2 ingredienti
+        // Validate that there are at least 2 ingredients
         if (requestDTO.getIngredienti() == null || requestDTO.getIngredienti().size() < 2) {
             throw new IllegalArgumentException("Il cocktail deve contenere almeno 2 ingredienti");
         }
         
-        // Validazione: nome non vuoto
+        // Validate that the name is not blank
         if (requestDTO.getNome() == null || requestDTO.getNome().trim().isEmpty()) {
             throw new IllegalArgumentException("Il nome del cocktail non può essere vuoto");
         }
         
-        // Crea l'entità Cocktail
+        // Create the Cocktail entity
         Cocktail cocktail = new Cocktail();
         cocktail.setNome(requestDTO.getNome().trim());
         cocktail.setDescrizione(requestDTO.getDescrizione());
         cocktail.setTempoPreparazioneMinutes(requestDTO.getTempoPreparazioneMinutes());
         cocktail.setNote(requestDTO.getNote());
         
-        // Salva il cocktail
+        // Save the cocktail
         Cocktail savedCocktail = cocktailRepository.save(cocktail);
         
-        // Processa gli ingredienti
+        // Process the ingredients
         Set<Long> processedIngredients = new HashSet<>();
         int stepOrder = 1;
         
         for (CreateCocktailRequestDTO.IngredienteStepDTO ingredienteStep : requestDTO.getIngredienti()) {
-            // Normalizza il nome ingrediente (lowercase, trim)
+            // Normalize the ingredient name (lowercase, trim)
             String nomeNormalizzato = ingredienteStep.getNome().trim().toLowerCase();
             
-            // Verifica di non avere duplicati nella stessa richiesta
+            // Verify that there are no duplicates in the same request
             if (!processedIngredients.isEmpty()) {
                 for (Long ingredId : processedIngredients) {
                     Ingrediente existing = ingredienteRepository.findById(ingredId).orElse(null);
@@ -138,14 +136,14 @@ public class CocktailService {
                 }
             }
             
-            // Cerca l'ingrediente nel database (case-insensitive)
+            // Find the ingredient in the database (case-insensitive)
             Optional<Ingrediente> existingIngrediente = ingredienteRepository.findByNomeIgnoreCase(nomeNormalizzato);
             
             Ingrediente ingrediente;
             if (existingIngrediente.isPresent()) {
                 ingrediente = existingIngrediente.get();
             } else {
-                // Crea un nuovo ingrediente
+                // Create a new ingredient
                 ingrediente = new Ingrediente();
                 ingrediente.setNome(nomeNormalizzato);
                 ingrediente = ingredienteRepository.save(ingrediente);
@@ -153,7 +151,7 @@ public class CocktailService {
             
             processedIngredients.add(ingrediente.getId());
             
-            // Crea lo step di preparazione
+            // Create the preparation step
             Preparazione preparazione = new Preparazione();
             preparazione.setCocktailId(savedCocktail.getId());
             preparazione.setIngredienteId(ingrediente.getId());
@@ -161,7 +159,7 @@ public class CocktailService {
             preparazione.setUnita(ingredienteStep.getUnita());
             preparazione.setStepOrder(stepOrder);
             
-            // Se la preparazione è fornita, usarla; altrimenti usare il default
+            // Use the provided preparation, or the default if none was provided
             if (requestDTO.getPreparazione() != null && !requestDTO.getPreparazione().trim().isEmpty()) {
                 preparazione.setIstruzione(requestDTO.getPreparazione().trim());
             } else {
@@ -176,11 +174,11 @@ public class CocktailService {
     }
 
     /**
-     * Crea un nuovo cocktail (versione legacy senza ingredienti)
-     * Usare createCocktail(CreateCocktailRequestDTO) per creare cocktail completi
+     * Creates a new cocktail (legacy version without ingredients).
+     * Use createCocktail(CreateCocktailRequestDTO) for the complete version.
      * 
-     * @param cocktailDTO Dati base del cocktail
-     * @return CocktailDTO del cocktail creato
+     * @param cocktailDTO base cocktail data
+     * @return CocktailDTO for the created cocktail
      */
     @Transactional
     public CocktailDTO createCocktail(CocktailDTO cocktailDTO) {
@@ -190,20 +188,20 @@ public class CocktailService {
     }
 
     /**
-     * Aggiorna un cocktail esistente (supporta aggiornamenti parziali)
+     * Updates an existing cocktail (supports partial updates).
      * 
-     * Solo i campi non-null nel DTO vengono aggiornati.
-     * Gli altri campi mantengono il valore precedente.
+     * Only non-null fields in the DTO are updated.
+     * Other fields retain their previous values.
      * 
-     * @param id ID del cocktail da aggiornare
-     * @param cocktailDTO Dati da aggiornare (campi null vengono ignorati)
-     * @return Optional contenente il cocktail aggiornato, o vuoto se non trovato
+     * @param id ID of the cocktail to update
+     * @param cocktailDTO data to update (null fields are ignored)
+     * @return Optional containing the updated cocktail, or empty if not found
      */
     @Transactional
     public Optional<CocktailDTO> updateCocktail(Long id, CocktailDTO cocktailDTO) {
         return cocktailRepository.findById(id)
                 .map(existing -> {
-                    // Aggiorna solo i campi non-null ricevuti nel DTO
+                    // Update only non-null fields received in the DTO
                     if (cocktailDTO.getNome() != null) {
                         existing.setNome(cocktailDTO.getNome());
                     }
@@ -222,26 +220,26 @@ public class CocktailService {
     }
 
     /**
-     * Elimina un cocktail e tutti i dati correlati (cancellazione cascata)
+     * Deletes a cocktail and all related data (cascade deletion).
      * 
-     * Sequenza di eliminazione:
-     * 1. Elimina tutti i favoriti che puntano al cocktail
-     * 2. Elimina tutti gli step di preparazione
-     * 3. Elimina il cocktail stesso
+     * Deletion sequence:
+     * 1. Delete all favorites pointing to the cocktail
+     * 2. Delete all preparation steps
+     * 3. Delete the cocktail itself
      * 
-     * Nota: gli ingredienti NON vengono eliminati (possono essere usati da altri cocktail)
+     * Note: ingredients are NOT deleted (they may be used by other cocktails)
      * 
-     * @param id ID del cocktail da eliminare
-     * @return true se eliminato con successo, false se non trovato
+     * @param id ID of the cocktail to delete
+     * @return true if deleted successfully, false if not found
      */
     @Transactional
     public boolean deleteCocktail(Long id) {
         if (cocktailRepository.existsById(id)) {
-            // Prima elimina i favoriti associati
+            // First delete associated favorites
             userFavoritoRepository.deleteByCocktailId(id);
-            // Poi elimina la preparazione
+            // Then delete the preparation steps
             preparazioneRepository.deleteByCocktailId(id);
-            // Infine elimina il cocktail
+            // Finally delete the cocktail
             cocktailRepository.deleteById(id);
             return true;
         }
@@ -249,14 +247,14 @@ public class CocktailService {
     }
 
     /**
-     * Converte un'entity Cocktail in DTO per il client
+     * Converts a Cocktail entity to a DTO for the client.
      * 
-     * Arricchisce i dati con:
-     * - Step di preparazione ordinati
-     * - Nome ingrediente per ogni step (join con tabella ingredienti)
+     * Enriches the data with:
+     * - Ordered preparation steps
+     * - Ingredient name for each step (join with the ingredients table)
      * 
-     * @param cocktail Entity dal database
-     * @return DTO completo pronto per il client
+     * @param cocktail entity from the database
+     * @return complete DTO ready for the client
      */
     private CocktailDTO convertToDTO(Cocktail cocktail) {
         CocktailDTO dto = new CocktailDTO();
@@ -266,10 +264,10 @@ public class CocktailService {
         dto.setTempoPreparazioneMinutes(cocktail.getTempoPreparazioneMinutes());
         dto.setNote(cocktail.getNote());
         
-        // Carica gli step ordinati
+        // Load ordered steps
         List<Preparazione> steps = preparazioneRepository.findByCocktailIdOrderByStepOrderAsc(cocktail.getId());
         
-        // Carica tutti gli ingredienti una volta sola (evita N+1 query problem)
+        // Load all ingredients once (avoids the N+1 query problem)
         Map<Long, String> ingredientiMap = new HashMap<>();
         for (Preparazione step : steps) {
             if (!ingredientiMap.containsKey(step.getIngredienteId())) {
@@ -280,7 +278,7 @@ public class CocktailService {
             }
         }
         
-        // Converte ogni step in StepPreparazioneDTO
+        // Convert each step to StepPreparazioneDTO
         List<CocktailDTO.StepPreparazioneDTO> stepsDTO = steps.stream()
                 .map(step -> new CocktailDTO.StepPreparazioneDTO(
                         step.getStepOrder(),
@@ -296,9 +294,9 @@ public class CocktailService {
     }
 
     /**
-     * Converte un DTO in entity Cocktail (solo campi base)
-     * @param dto DTO ricevuto dal client
-     * @return Entity Cocktail pronta per il salvataggio
+     * Converts a DTO to a Cocktail entity (base fields only).
+     * @param dto DTO received from the client
+     * @return Cocktail entity ready to be saved
      */
     private Cocktail convertToEntity(CocktailDTO dto) {
         Cocktail cocktail = new Cocktail();
